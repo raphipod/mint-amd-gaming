@@ -6,6 +6,10 @@ MESA_SOURCE="kisak"  # Standard: kisak
 
 ### === FUNCTIONS ===
 
+check_xanmod() {
+  uname -r | grep -qi xanmod
+}
+
 print_usage() {
   echo "Usage: sudo $0 [--mesa oibaf|kisak]"
   exit 1
@@ -55,6 +59,15 @@ install_mesa() {
   apt full-upgrade -y
 }
 
+install_xanmod() {
+  echo ">>> Installiere XanMod-Kernel (stabil)..."
+  apt install -y curl gnupg ca-certificates
+  curl -fsSL https://dl.xanmod.org/gpg.key | gpg --dearmor -o /etc/apt/trusted.gpg.d/xanmod.gpg
+  echo "deb [arch=amd64] https://dl.xanmod.org releases main" > /etc/apt/sources.list.d/xanmod.list
+  apt update
+  apt install -y linux-xanmod
+}
+
 configure_amdgpu_x11() {
   echo ">>> Checking active monitors on X11..."
   ACTIVE_MONITORS=$(xrandr --listmonitors | grep -c "^ ")
@@ -91,6 +104,17 @@ parse_args "$@"
 
 echo "=== Linux Mint Gaming Setup (Mesa: $MESA_SOURCE) ==="
 
+install_xanmod
+
+if ! check_xanmod_active; then
+  echo ">>> XanMod-Kernel is not active. Installing..."
+  install_xanmod_kernel
+  echo ">>> XanMod-Kernel is installed. Please reboot and then restart this script."
+  exit 0
+else
+  echo ">>> XanMod-Kernel is active – continuing with config."
+fi
+
 install_mesa
 
 if is_x11_active; then
@@ -100,4 +124,4 @@ else
   echo ">>> Wayland recognized or no active X-Server – AMDGPU-Konfiguration will be skipped."
 fi
 
-echo "=== Setup done! Please reboot to apply changes. ==="
+echo "=== Setup done! Please reboot again to apply changes. ==="
