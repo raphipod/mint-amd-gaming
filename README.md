@@ -1,7 +1,7 @@
 # mint-amd-gaming
 Small shell script to prepare stock Linux Mint for gaming (AMD GPU's only!)
 
-Please inspect the script before you execute it, it might do things you don't want it to do!
+Please ALWAYS inspect the script before you execute it, it might do things you don't want it to do!
 
 ## Usage:
 
