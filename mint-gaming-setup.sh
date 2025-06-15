@@ -2,7 +2,7 @@
 set -e
 
 ### === CONFIGURATION ===
-MESA_SOURCE="kisak"  # Standard: kisak
+MESA_SOURCE="kisak"  # Default: kisak
 
 ### === FUNCTIONS ===
 
@@ -23,7 +23,7 @@ parse_args() {
         if [[ "$1" == "oibaf" || "$1" == "kisak" ]]; then
           MESA_SOURCE="$1"
         else
-          echo "Not a valid MESA-Source: $1"
+          echo "Not a valid Mesa-Source: $1"
           print_usage
         fi
         ;;
@@ -60,12 +60,12 @@ install_mesa() {
 }
 
 install_xanmod() {
-  echo ">>> Installiere XanMod-Kernel (stabil)..."
-  apt install -y curl gnupg ca-certificates
-  curl -fsSL https://dl.xanmod.org/gpg.key | gpg --dearmor -o /etc/apt/trusted.gpg.d/xanmod.gpg
-  echo "deb [arch=amd64] https://dl.xanmod.org releases main" > /etc/apt/sources.list.d/xanmod.list
+  echo ">>> Installing XanMod-Kernel (stable/main)..."
+  apt install -y gnupg ca-certificates
+  wget -qO - https://dl.xanmod.org/archive.key | sudo gpg --dearmor -vo /etc/apt/keyrings/xanmod-archive-keyring.gpg
+  echo 'deb [signed-by=/etc/apt/keyrings/xanmod-archive-keyring.gpg] http://deb.xanmod.org releases main' | sudo tee /etc/apt/sources.list.d/xanmod-release.list
   apt update
-  apt install -y linux-xanmod
+  apt install -y linux-xanmod-x64v3
 }
 
 configure_amdgpu_x11() {
@@ -87,7 +87,7 @@ EOF
 
   if [ "$ACTIVE_MONITORS" -gt 1 ]; then
     echo '    Option      "AsyncFlipSecondaries" "true"' >> "$XORG_FILE"
-    echo ">>> AsyncFlipSecondaries aktiviert wegen Mehrschirmbetrieb."
+    echo ">>> AsyncFlipSecondaries active because of multiple monitors."
   fi
 
   echo "EndSection" >> "$XORG_FILE"
@@ -121,7 +121,7 @@ if is_x11_active; then
   echo ">>> X-Server / X11 recognized – AMDGPU X11-Configuration is applied."
   configure_amdgpu_x11
 else
-  echo ">>> Wayland recognized or no active X-Server – AMDGPU-Konfiguration will be skipped."
+  echo ">>> Wayland recognized or no active X-Server – AMDGPU X11-Configuration will be skipped."
 fi
 
 echo "=== Setup done! Please reboot again to apply changes. ==="
